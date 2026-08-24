@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>SMJC Event Scanner</title>
+
+  <script src="https://unpkg.com/html5-qrcode"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 15px;
+      background: #f2f4f7;
+      font-family: Arial, sans-serif;
+    }
+
+    .container {
+      max-width: 520px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 18px;
+      box-shadow: 0 6px 25px rgba(0,0,0,.15);
+    }
+
+    h1 {
+      text-align: center;
+      margin: 5px 0;
+      color: #111827;
+      font-size: 26px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #6b7280;
+      margin-bottom: 20px;
+      font-weight: 700;
+    }
+
+    label {
+      display: block;
+      margin-top: 14px;
+      margin-bottom: 6px;
+      font-weight: 800;
+      color: #374151;
+    }
+
+    select {
+      width: 100%;
+      padding: 13px;
+      border-radius: 10px;
+      border: 1px solid #d1d5db;
+      font-size: 16px;
+      background: white;
+    }
+
+    #reader {
+      width: 100%;
+      margin-top: 20px;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      margin-top: 15px;
+      border: none;
+      border-radius: 10px;
+      background: #111827;
+      color: white;
+      font-size: 16px;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      background: #9ca3af;
+    }
+
+    .result {
+      margin-top: 20px;
+      padding: 18px;
+      border-radius: 12px;
+      text-align: center;
+      font-weight: 900;
+      display: none;
+    }
+
+    .success {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .error {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .warning {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .student {
+      margin-top: 10px;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <h1>🎟️ SMJC EVENT SCANNER</h1>
+
+  <div class="subtitle">
+    Attendance Scanner
+  </div>
+
+  <label>Select Day</label>
+
+  <select id="day">
+    <option value="Day 1">Day 1 — 06 SEP</option>
+    <option value="Day 2">Day 2 — 07 SEP</option>
+    <option value="Day 3">Day 3 — 08 SEP</option>
+  </select>
+
+
+  <label>Select Activity</label>
+
+  <select id="activity">
+  </select>
+
+
+  <div id="reader"></div>
+
+
+  <button id="startButton" onclick="startScanner()">
+    📷 START SCANNER
+  </button>
+
+
+  <button id="stopButton" onclick="stopScanner()" disabled>
+    ⛔ STOP SCANNER
+  </button>
+
+
+  <div id="result" class="result"></div>
+
+</div>
+
+
+<script>
+
+const APPS_SCRIPT_URL =
+  "https://script.google.com/macros/s/AKfycbwztUUdFujNXHlumfDPOxmf5-yryNogtOxnIwuHEW1Lg_x1FrmWISlkBLn6ua0fUkfOog/exec";
+
+
+const activities = {
+
+  "Day 1": [
+    "Main Gate Check-in",
+    "Grand Luncheon",
+    "Moonlight Dinner",
+    "Main Gate Check-out"
+  ],
+
+  "Day 2": [
+    "Main Gate Check-in",
+    "Freshers Feast",
+    "Starlit Dinner",
+    "Main Gate Check-out"
+  ],
+
+  "Day 3": [
+    "Main Gate Check-in",
+    "Signature Lunch",
+    "Twilight Dinner",
+    "Main Gate Check-out"
+  ]
+
+};
+
+
+let scanner = null;
+
+let scannerRunning = false;
+
+
+/* ==========================================
+   LOAD ACTIVITIES
+   ========================================== */
+
+function loadActivities() {
+
+  const day =
+    document.getElementById("day").value;
+
+  const activitySelect =
+    document.getElementById("activity");
+
+  activitySelect.innerHTML = "";
+
+  activities[day].forEach(function(activity) {
+
+    const option =
+      document.createElement("option");
+
+    option.value = activity;
+
+    option.textContent = activity;
+
+    activitySelect.appendChild(option);
+
+  });
+
+}
+
+
+/* ==========================================
+   DAY CHANGE
+   ========================================== */
+
+document
+  .getElementById("day")
+  .addEventListener(
+    "change",
+    loadActivities
+  );
+
+
+loadActivities();
+
+
+/* ==========================================
+   START SCANNER
+   ========================================== */
+
+function startScanner() {
+
+  if (scannerRunning) return;
+
+  scanner =
+    new Html5Qrcode("reader");
+
+  scanner.start(
+
+    {
+      facingMode: "environment"
+    },
+
+    {
+      fps: 10,
+      qrbox: {
+        width: 250,
+        height: 250
+      }
+    },
+
+    function(decodedText) {
+
+      processQRCode(decodedText);
+
+    },
+
+    function(errorMessage) {
+
+      // Ignore continuous scanning errors
+
+    }
+
+  )
+  .then(function() {
+
+    scannerRunning = true;
+
+    document
+      .getElementById("startButton")
+      .disabled = true;
+
+    document
+      .getElementById("stopButton")
+      .disabled = false;
+
+  })
+  .catch(function(error) {
+
+    showResult(
+      "Camera could not be started. Please allow camera permission.",
+      "error"
+    );
+
+  });
+
+}
+
+
+/* ==========================================
+   STOP SCANNER
+   ========================================== */
+
+function stopScanner() {
+
+  if (!scanner || !scannerRunning) return;
+
+  scanner.stop()
+    .then(function() {
+
+      scannerRunning = false;
+
+      document
+        .getElementById("startButton")
+        .disabled = false;
+
+      document
+        .getElementById("stopButton")
+        .disabled = true;
+
+    });
+
+}
+
+
+/* ==========================================
+   PROCESS QR
+   ========================================== */
+
+function processQRCode(decodedText) {
+
+  let ticketId = "";
+
+  try {
+
+    const url =
+      new URL(decodedText);
+
+    ticketId =
+      url.searchParams.get("ticket") || "";
+
+  } catch (error) {
+
+    ticketId =
+      decodedText.trim();
+
+  }
+
+
+  if (!ticketId) {
+
+    showResult(
+      "❌ INVALID QR CODE",
+      "error"
+    );
+
+    return;
+  }
+
+
+  const day =
+    document.getElementById("day").value;
+
+  const activity =
+    document.getElementById("activity").value;
+
+
+  showResult(
+    "⏳ Checking ticket...",
+    "warning"
+  );
+
+
+  stopScanner();
+
+
+  sendAttendance(
+    ticketId,
+    day,
+    activity
+  );
+
+}
+
+
+/* ==========================================
+   SEND TO APPS SCRIPT
+   ========================================== */
+
+function sendAttendance(
+  ticketId,
+  day,
+  activity
+) {
+
+  fetch(APPS_SCRIPT_URL, {
+
+    method: "POST",
+
+    headers: {
+      "Content-Type": "text/plain;charset=utf-8"
+    },
+
+    body: JSON.stringify({
+
+      ticketId: ticketId,
+
+      day: day,
+
+      activity: activity
+
+    })
+
+  })
+
+  .then(function(response) {
+
+    return response.json();
+
+  })
+
+  .then(function(data) {
+
+    if (data.success) {
+
+      showResult(
+
+        "✅ ALLOWED" +
+
+        '<div class="student">' +
+
+        "Student: " +
+        (data.studentName || "") +
+
+        "<br>" +
+
+        "Ticket: " +
+        (data.ticketId || ticketId) +
+
+        "<br>" +
+
+        "Activity: " +
+        (data.activity || activity) +
+
+        "<br>" +
+
+        "Time: " +
+        (data.time || "") +
+
+        "</div>",
+
+        "success"
+
+      );
+
+    }
+
+    else {
+
+      let message =
+        data.message || "Scan failed.";
+
+      if (
+        message ===
+        "ALREADY COMPLETED"
+      ) {
+
+        message =
+          "⚠️ ALREADY COMPLETED";
+
+      }
+
+      else if (
+        message ===
+        "INVALID TICKET"
+      ) {
+
+        message =
+          "❌ INVALID TICKET";
+
+      }
+
+      else if (
+        message ===
+        "MAIN GATE CHECK-IN NOT FOUND"
+      ) {
+
+        message =
+          "❌ CHECK-IN NOT FOUND";
+
+      }
+
+
+      showResult(
+        message,
+        "error"
+      );
+
+    }
+
+  })
+
+  .catch(function(error) {
+
+    showResult(
+
+      "❌ CONNECTION ERROR<br>" +
+      "Please check your internet connection.",
+
+      "error"
+
+    );
+
+  });
+
+}
+
+
+/* ==========================================
+   SHOW RESULT
+   ========================================== */
+
+function showResult(
+  message,
+  type
+) {
+
+  const result =
+    document.getElementById("result");
+
+  result.style.display = "block";
+
+  result.className =
+    "result " + type;
+
+  result.innerHTML =
+    message;
+
+}
+
+</script>
+
+</body>
+</html>
