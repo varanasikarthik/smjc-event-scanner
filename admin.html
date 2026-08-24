@@ -242,19 +242,40 @@ td {
   border-bottom: 1px solid #e5e7eb;
 }
 
-.allowed {
+.completed {
   color: #15803d;
   font-weight: bold;
 }
 
 .not-entered {
   color: #6b7280;
+  font-weight: bold;
 }
 
-.completed {
+.entered-status {
+  color: #15803d;
+  font-weight: 900;
+}
+
+.checkout-status {
+  color: #2563eb;
+  font-weight: 900;
+}
+
+.allowed {
   color: #15803d;
   font-weight: bold;
 }
+
+.loading {
+  text-align: center;
+  padding: 25px;
+  color: #6b7280;
+}
+
+/* ==========================================
+   FOOTER
+========================================== */
 
 .footer {
   text-align: center;
@@ -563,17 +584,35 @@ const APPS_SCRIPT_URL =
 ========================================== */
 
 let dashboardData = {
-
   students: [],
-
   attendance: []
-
 };
 
-
-/* CURRENT SELECTED DAY */
-
 let selectedDay = "Day 1";
+
+
+/* ==========================================
+   DAY ACTIVITIES
+========================================== */
+
+const dayActivities = {
+
+  "Day 1": {
+    lunch: "Grand Luncheon",
+    dinner: "Moonlight Dinner"
+  },
+
+  "Day 2": {
+    lunch: "Freshers Feast",
+    dinner: "Starlit Dinner"
+  },
+
+  "Day 3": {
+    lunch: "Signature Lunch",
+    dinner: "Twilight Dinner"
+  }
+
+};
 
 
 /* ==========================================
@@ -584,29 +623,21 @@ function selectDay(day, button) {
 
   selectedDay = day;
 
-
   document
     .querySelectorAll(".day-btn")
     .forEach(function(btn) {
-
       btn.classList.remove("active");
-
     });
 
-
   button.classList.add("active");
-
 
   document.getElementById("selectedDay")
     .textContent = day;
 
-
   document.getElementById("scanDay")
     .textContent = day;
 
-
   updateDashboard();
-
 }
 
 
@@ -619,10 +650,8 @@ function loadDashboard() {
   document.getElementById("studentTable").innerHTML =
     '<tr><td colspan="8" class="loading">Loading data...</td></tr>';
 
-
   document.getElementById("scanTable").innerHTML =
     '<tr><td colspan="7" class="loading">Loading data...</td></tr>';
-
 
   fetch(
     APPS_SCRIPT_URL +
@@ -630,9 +659,7 @@ function loadDashboard() {
   )
 
   .then(function(response) {
-
     return response.json();
-
   })
 
   .then(function(data) {
@@ -647,14 +674,11 @@ function loadDashboard() {
       return;
     }
 
-
     dashboardData.students =
       data.students || [];
 
-
     dashboardData.attendance =
       data.attendance || [];
-
 
     updateDashboard();
 
@@ -669,7 +693,6 @@ function loadDashboard() {
     );
 
   });
-
 }
 
 
@@ -681,21 +704,18 @@ function updateDashboard() {
 
   updateStatistics();
 
-
   displayStudents(
     dashboardData.students
   );
 
-
   displayLatestScans(
     dashboardData.attendance
   );
-
 }
 
 
 /* ==========================================
-   GET DAY ATTENDANCE
+   GET SELECTED DAY ATTENDANCE
 ========================================== */
 
 function getSelectedDayAttendance() {
@@ -703,11 +723,64 @@ function getSelectedDayAttendance() {
   return dashboardData.attendance.filter(
     function(row) {
 
-      return String(row.day).trim() === selectedDay;
+      return String(row.day).trim() ===
+        selectedDay;
 
     }
   );
 
+}
+
+
+/* ==========================================
+   FIND ACTIVITY
+========================================== */
+
+function findActivity(
+  ticketId,
+  activity
+) {
+
+  const attendance =
+    getSelectedDayAttendance();
+
+  return attendance.find(
+    function(row) {
+
+      return (
+        String(row.ticketId).trim() ===
+        String(ticketId).trim() &&
+
+        String(row.activity).trim() ===
+        activity
+      );
+
+    }
+  );
+
+}
+
+
+/* ==========================================
+   GET ACTIVITY TIME
+========================================== */
+
+function getActivityTime(
+  ticketId,
+  activity
+) {
+
+  const found =
+    findActivity(
+      ticketId,
+      activity
+    );
+
+  if (!found) {
+    return "NOT YET";
+  }
+
+  return found.time || "COMPLETED";
 }
 
 
@@ -720,8 +793,7 @@ function updateStatistics() {
   const attendance =
     getSelectedDayAttendance();
 
-
-  /* REGISTERED ALWAYS TOTAL */
+  /* REGISTERED */
 
   document.getElementById("registered")
     .textContent =
@@ -741,28 +813,28 @@ function updateStatistics() {
 
   /* LUNCH */
 
+  const lunchActivity =
+    dayActivities[selectedDay].lunch;
+
   const lunches =
     attendance.filter(function(row) {
 
-      return (
-        row.activity === "Grand Luncheon" ||
-        row.activity === "Freshers Feast" ||
-        row.activity === "Signature Lunch"
-      );
+      return row.activity ===
+        lunchActivity;
 
     });
 
 
   /* DINNER */
 
+  const dinnerActivity =
+    dayActivities[selectedDay].dinner;
+
   const dinners =
     attendance.filter(function(row) {
 
-      return (
-        row.activity === "Moonlight Dinner" ||
-        row.activity === "Starlit Dinner" ||
-        row.activity === "Twilight Dinner"
-      );
+      return row.activity ===
+        dinnerActivity;
 
     });
 
@@ -782,72 +854,61 @@ function updateStatistics() {
     .textContent =
     checkins.length;
 
-
   document.getElementById("lunch")
     .textContent =
     lunches.length;
 
-
   document.getElementById("dinner")
     .textContent =
     dinners.length;
-
 
   document.getElementById("checkout")
     .textContent =
     checkouts.length;
 
 
-  /* CURRENTLY INSIDE */
+  /* ======================================
+     CURRENTLY INSIDE
+  ====================================== */
+
+  let insideCount = 0;
+
+  dashboardData.students.forEach(
+    function(student) {
+
+      const entry =
+        findActivity(
+          student.ticketId,
+          "Main Gate Check-in"
+        );
+
+      const checkout =
+        findActivity(
+          student.ticketId,
+          "Main Gate Check-out"
+        );
+
+      if (entry && !checkout) {
+        insideCount++;
+      }
+
+    }
+  );
+
 
   document.getElementById("inside")
     .textContent =
-    Math.max(
-      checkins.length -
-      checkouts.length,
-      0
-    );
+    insideCount;
 
 
-  /* INVALID */
+  /*
+     Invalid scans are not stored by the
+     current backend, so keep this at 0.
+  */
 
   document.getElementById("invalid")
     .textContent =
     0;
-
-}
-
-
-/* ==========================================
-   FIND ACTIVITY TIME
-========================================== */
-
-function getActivityTime(
-  ticketId,
-  activity
-) {
-
-  const attendance =
-    getSelectedDayAttendance();
-
-
-  const found =
-    attendance.find(function(row) {
-
-      return (
-        String(row.ticketId).trim() ===
-        String(ticketId).trim() &&
-
-        row.activity === activity
-      );
-
-    });
-
-
-  return found
-    ? found.time || "✓ COMPLETED"
-    : "—";
-
 }
 
 
@@ -862,17 +923,6 @@ function displayStudents(students) {
       "studentTable"
     );
 
-
-  if (!students.length) {
-
-    table.innerHTML =
-      '<tr><td colspan="8">No students found.</td></tr>';
-
-    return;
-
-  }
-
-
   const query =
     document
       .getElementById("search")
@@ -882,178 +932,209 @@ function displayStudents(students) {
 
 
   const filtered =
-    students.filter(function(student) {
+    students.filter(
+      function(student) {
 
-      if (!query) return true;
+        if (!query) {
+          return true;
+        }
 
+        return (
 
-      return (
+          String(student.ticketId)
+            .toLowerCase()
+            .includes(query)
 
-        String(student.ticketId)
-          .toLowerCase()
-          .includes(query)
+          ||
 
-        ||
+          String(student.regNo)
+            .toLowerCase()
+            .includes(query)
 
-        String(student.regNo)
-          .toLowerCase()
-          .includes(query)
+          ||
 
-        ||
+          String(student.studentName)
+            .toLowerCase()
+            .includes(query)
 
-        String(student.studentName)
-          .toLowerCase()
-          .includes(query)
+        );
 
-      );
-
-    });
+      }
+    );
 
 
   if (!filtered.length) {
 
     table.innerHTML =
-      '<tr><td colspan="8">No matching student found.</td></tr>';
+      '<tr><td colspan="8" class="loading">No matching student found.</td></tr>';
 
     return;
-
   }
+
+
+  const lunchActivity =
+    dayActivities[selectedDay].lunch;
+
+  const dinnerActivity =
+    dayActivities[selectedDay].dinner;
 
 
   let html = "";
 
 
-  filtered.forEach(function(student) {
+  filtered.forEach(
+    function(student) {
 
-    const entry =
-      getActivityTime(
-        student.ticketId,
-        "Main Gate Check-in"
-      );
+      /* ENTRY */
+
+      const entry =
+        findActivity(
+          student.ticketId,
+          "Main Gate Check-in"
+        );
 
 
-    let lunchActivity = "";
+      /* LUNCH */
+
+      const lunch =
+        findActivity(
+          student.ticketId,
+          lunchActivity
+        );
 
 
-    if (selectedDay === "Day 1") {
+      /* DINNER */
 
-      lunchActivity =
-        "Grand Luncheon";
+      const dinner =
+        findActivity(
+          student.ticketId,
+          dinnerActivity
+        );
+
+
+      /* CHECKOUT */
+
+      const checkout =
+        findActivity(
+          student.ticketId,
+          "Main Gate Check-out"
+        );
+
+
+      /* ====================================
+         FORMAT TIMES
+      ==================================== */
+
+      const entryText =
+        entry
+          ? (entry.time || "COMPLETED")
+          : "NOT YET";
+
+
+      const lunchText =
+        lunch
+          ? (lunch.time || "COMPLETED")
+          : "NOT YET";
+
+
+      const dinnerText =
+        dinner
+          ? (dinner.time || "COMPLETED")
+          : "NOT YET";
+
+
+      const checkoutText =
+        checkout
+          ? (checkout.time || "COMPLETED")
+          : "NOT YET";
+
+
+      /* ====================================
+         STATUS
+      ==================================== */
+
+      let statusHTML = "";
+
+      let statusClass = "not-entered";
+
+
+      if (checkout) {
+
+        statusHTML =
+          "🔵 CHECKED OUT";
+
+        statusClass =
+          "checkout-status";
+
+      }
+
+      else if (entry) {
+
+        statusHTML =
+          "🟢 ENTERED";
+
+        statusClass =
+          "entered-status";
+
+      }
+
+      else {
+
+        statusHTML =
+          "⚪ NOT ENTERED";
+
+        statusClass =
+          "not-entered";
+
+      }
+
+
+      html += `
+
+        <tr>
+
+          <td>
+            ${student.ticketId || ""}
+          </td>
+
+          <td>
+            ${student.regNo || ""}
+          </td>
+
+          <td>
+            ${student.studentName || ""}
+          </td>
+
+          <td class="${entry ? "completed" : "not-entered"}">
+            ${entryText}
+          </td>
+
+          <td class="${lunch ? "completed" : "not-entered"}">
+            ${lunchText}
+          </td>
+
+          <td class="${dinner ? "completed" : "not-entered"}">
+            ${dinnerText}
+          </td>
+
+          <td class="${checkout ? "completed" : "not-entered"}">
+            ${checkoutText}
+          </td>
+
+          <td class="${statusClass}">
+            ${statusHTML}
+          </td>
+
+        </tr>
+
+      `;
 
     }
-
-    else if (selectedDay === "Day 2") {
-
-      lunchActivity =
-        "Freshers Feast";
-
-    }
-
-    else {
-
-      lunchActivity =
-        "Signature Lunch";
-
-    }
-
-
-    const lunch =
-      getActivityTime(
-        student.ticketId,
-        lunchActivity
-      );
-
-
-    let dinnerActivity = "";
-
-
-    if (selectedDay === "Day 1") {
-
-      dinnerActivity =
-        "Moonlight Dinner";
-
-    }
-
-    else if (selectedDay === "Day 2") {
-
-      dinnerActivity =
-        "Starlit Dinner";
-
-    }
-
-    else {
-
-      dinnerActivity =
-        "Twilight Dinner";
-
-    }
-
-
-    const dinner =
-      getActivityTime(
-        student.ticketId,
-        dinnerActivity
-      );
-
-
-    const checkout =
-      getActivityTime(
-        student.ticketId,
-        "Main Gate Check-out"
-      );
-
-
-    const entered =
-      entry !== "—";
-
-
-    let status =
-      entered
-        ? "ENTERED"
-        : "NOT ENTERED";
-
-
-    html += `
-
-      <tr>
-
-        <td>${student.ticketId || ""}</td>
-
-        <td>${student.regNo || ""}</td>
-
-        <td>${student.studentName || ""}</td>
-
-        <td class="${entered ? "completed" : "not-entered"}">
-          ${entry}
-        </td>
-
-        <td class="${lunch !== "—" ? "completed" : "not-entered"}">
-          ${lunch}
-        </td>
-
-        <td class="${dinner !== "—" ? "completed" : "not-entered"}">
-          ${dinner}
-        </td>
-
-        <td class="${checkout !== "—" ? "completed" : "not-entered"}">
-          ${checkout}
-        </td>
-
-        <td class="${entered ? "completed" : "not-entered"}">
-          ${entered ? "🟢 " : "⚪ "}
-          ${status}
-        </td>
-
-      </tr>
-
-    `;
-
-  });
+  );
 
 
   table.innerHTML =
     html;
-
 }
 
 
@@ -1070,21 +1151,22 @@ function displayLatestScans(attendance) {
 
 
   const dayAttendance =
-    attendance.filter(function(row) {
+    attendance.filter(
+      function(row) {
 
-      return String(row.day).trim() ===
-        selectedDay;
+        return String(row.day).trim() ===
+          selectedDay;
 
-    });
+      }
+    );
 
 
   if (!dayAttendance.length) {
 
     table.innerHTML =
-      '<tr><td colspan="7">No scans for this day yet.</td></tr>';
+      '<tr><td colspan="7" class="loading">No scans for this day yet.</td></tr>';
 
     return;
-
   }
 
 
@@ -1098,38 +1180,51 @@ function displayLatestScans(attendance) {
   let html = "";
 
 
-  latest.forEach(function(row) {
+  latest.forEach(
+    function(row) {
 
-    html += `
+      html += `
 
-      <tr>
+        <tr>
 
-        <td>${row.time || ""}</td>
+          <td>
+            ${row.time || ""}
+          </td>
 
-        <td>${row.ticketId || ""}</td>
+          <td>
+            ${row.ticketId || ""}
+          </td>
 
-        <td>${row.regNo || ""}</td>
+          <td>
+            ${row.regNo || ""}
+          </td>
 
-        <td>${row.studentName || ""}</td>
+          <td>
+            ${row.studentName || ""}
+          </td>
 
-        <td>${row.day || ""}</td>
+          <td>
+            ${row.day || ""}
+          </td>
 
-        <td>${row.activity || ""}</td>
+          <td>
+            ${row.activity || ""}
+          </td>
 
-        <td class="allowed">
-          ALLOWED
-        </td>
+          <td class="allowed">
+            ✅ ALLOWED
+          </td>
 
-      </tr>
+        </tr>
 
-    `;
+      `;
 
-  });
+    }
+  );
 
 
   table.innerHTML =
     html;
-
 }
 
 
