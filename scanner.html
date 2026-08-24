@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>SMJC Freshers Day - QR Scanner</title>
+
+<script src="https://unpkg.com/html5-qrcode"></script>
+
+<style>
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 15px;
+  background: #f2f4f7;
+  font-family: Arial, sans-serif;
+  color: #111827;
+}
+
+.container {
+  max-width: 560px;
+  margin: auto;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.college-name {
+  font-size: 24px;
+  font-weight: 900;
+  line-height: 1.25;
+}
+
+.event-name {
+  margin-top: 8px;
+  font-size: 22px;
+  font-weight: 900;
+  color: #db2777;
+}
+
+.scanner-title {
+  margin-top: 8px;
+  font-size: 20px;
+  font-weight: 800;
+  color: #6b7280;
+}
+
+.card {
+  background: white;
+  padding: 20px;
+  border-radius: 18px;
+  box-shadow: 0 6px 25px rgba(0,0,0,.12);
+}
+
+label {
+  display: block;
+  margin-top: 12px;
+  margin-bottom: 7px;
+  font-weight: 900;
+  color: #374151;
+}
+
+select {
+  width: 100%;
+  padding: 14px;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  font-size: 16px;
+  background: white;
+}
+
+#reader {
+  width: 100%;
+  margin-top: 20px;
+  overflow: hidden;
+  border-radius: 14px;
+}
+
+button {
+  width: 100%;
+  padding: 15px;
+  margin-top: 15px;
+  border: none;
+  border-radius: 11px;
+  background: #111827;
+  color: white;
+  font-size: 17px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+button:disabled {
+  background: #9ca3af;
+}
+
+.result {
+  display: none;
+  margin-top: 18px;
+  padding: 18px;
+  border-radius: 13px;
+  text-align: center;
+  font-weight: 900;
+  font-size: 18px;
+}
+
+.success {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.error {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.warning {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.student {
+  margin-top: 10px;
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.footer {
+  text-align: center;
+  margin-top: 18px;
+  color: #6b7280;
+  font-size: 13px;
+}
+
+@media (max-width: 550px) {
+
+  body {
+    padding: 10px;
+  }
+
+  .college-name {
+    font-size: 19px;
+  }
+
+  .event-name {
+    font-size: 19px;
+  }
+
+  .scanner-title {
+    font-size: 17px;
+  }
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+  <!-- HEADER -->
+
+  <div class="header">
+
+    <div class="college-name">
+      SRI MUNINARAYANA JUNIOR & DEGREE COLLEGE, BAIREDDIPALLI
+    </div>
+
+    <div class="event-name">
+      FRESHERS DAY CELEBRATIONS
+    </div>
+
+    <div class="scanner-title">
+      🎟️ QR ATTENDANCE SCANNER
+    </div>
+
+  </div>
+
+
+  <div class="card">
+
+    <!-- DAY -->
+
+    <label>
+      📅 SELECT DAY
+    </label>
+
+    <select id="day">
+
+      <option value="Day 1">
+        Day 1 — 06 SEP 2026
+      </option>
+
+      <option value="Day 2">
+        Day 2 — 07 SEP 2026
+      </option>
+
+      <option value="Day 3">
+        Day 3 — 08 SEP 2026
+      </option>
+
+    </select>
+
+
+    <!-- ACTIVITY -->
+
+    <label>
+      🎯 SELECT ACTIVITY
+    </label>
+
+    <select id="activity"></select>
+
+
+    <!-- QR CAMERA -->
+
+    <div id="reader"></div>
+
+
+    <!-- BUTTONS -->
+
+    <button
+      id="startButton"
+      onclick="startScanner()"
+    >
+      📷 START SCANNER
+    </button>
+
+
+    <button
+      id="stopButton"
+      onclick="stopScanner()"
+      disabled
+    >
+      ⛔ STOP SCANNER
+    </button>
+
+
+    <!-- RESULT -->
+
+    <div
+      id="result"
+      class="result"
+    ></div>
+
+  </div>
+
+
+  <div class="footer">
+    SMJC EVENT 2026 — FRESHERS DAY CELEBRATIONS ❤️
+  </div>
+
+</div>
+
+
+<script>
+
+/* =====================================================
+   APPS SCRIPT URL
+   ===================================================== */
+
+const APPS_SCRIPT_URL =
+"https://script.google.com/macros/s/AKfycbwztUUdFujNXHlumfDPOxmf5-yryNogtOxnIwuHEW1Lg_x1FrmWISlkBLn6ua0fUkfOog/exec";
+
+
+/* =====================================================
+   ACTIVITIES
+   ===================================================== */
+
+const activities = {
+
+  "Day 1": [
+
+    "Main Gate Check-in",
+
+    "Grand Luncheon",
+
+    "Moonlight Dinner",
+
+    "Main Gate Check-out"
+
+  ],
+
+  "Day 2": [
+
+    "Main Gate Check-in",
+
+    "Freshers Feast",
+
+    "Starlit Dinner",
+
+    "Main Gate Check-out"
+
+  ],
+
+  "Day 3": [
+
+    "Main Gate Check-in",
+
+    "Signature Lunch",
+
+    "Twilight Dinner",
+
+    "Main Gate Check-out"
+
+  ]
+
+};
+
+
+/* =====================================================
+   VARIABLES
+   ===================================================== */
+
+let scanner = null;
+
+let scannerRunning = false;
+
+let processingScan = false;
+
+
+/* =====================================================
+   LOAD ACTIVITIES
+   ===================================================== */
+
+function loadActivities() {
+
+  const day =
+    document.getElementById("day").value;
+
+  const activitySelect =
+    document.getElementById("activity");
+
+  activitySelect.innerHTML = "";
+
+  activities[day].forEach(function(activity) {
+
+    const option =
+      document.createElement("option");
+
+    option.value = activity;
+
+    option.textContent = activity;
+
+    activitySelect.appendChild(option);
+
+  });
+
+}
+
+
+/* =====================================================
+   DAY CHANGE
+   ===================================================== */
+
+document
+  .getElementById("day")
+  .addEventListener(
+    "change",
+    function() {
+
+      loadActivities();
+
+      showResult("", "");
+
+    }
+  );
+
+
+loadActivities();
+
+
+/* =====================================================
+   START SCANNER
+   ===================================================== */
+
+function startScanner() {
+
+  if (scannerRunning) {
+    return;
+  }
+
+  processingScan = false;
+
+  scanner =
+    new Html5Qrcode("reader");
+
+
+  scanner.start(
+
+    {
+      facingMode: "environment"
+    },
+
+    {
+      fps: 10,
+
+      qrbox: {
+        width: 250,
+        height: 250
+      }
+
+    },
+
+    function(decodedText) {
+
+      if (processingScan) {
+        return;
+      }
+
+      processingScan = true;
+
+      processQRCode(decodedText);
+
+    },
+
+    function(errorMessage) {
+
+      // Ignore continuous QR scanning errors
+
+    }
+
+  )
+
+  .then(function() {
+
+    scannerRunning = true;
+
+    document
+      .getElementById("startButton")
+      .disabled = true;
+
+    document
+      .getElementById("stopButton")
+      .disabled = false;
+
+  })
+
+  .catch(function(error) {
+
+    scannerRunning = false;
+
+    showResult(
+
+      "❌ CAMERA COULD NOT BE STARTED<br>" +
+      "<div class='student'>" +
+      "Please allow camera permission and try again." +
+      "</div>",
+
+      "error"
+
+    );
+
+  });
+
+}
+
+
+/* =====================================================
+   STOP SCANNER
+   ===================================================== */
+
+function stopScanner() {
+
+  if (!scanner || !scannerRunning) {
+    return;
+  }
+
+  scanner.stop()
+
+    .then(function() {
+
+      scannerRunning = false;
+
+      document
+        .getElementById("startButton")
+        .disabled = false;
+
+      document
+        .getElementById("stopButton")
+        .disabled = true;
+
+    })
+
+    .catch(function() {
+
+      scannerRunning = false;
+
+      document
+        .getElementById("startButton")
+        .disabled = false;
+
+      document
+        .getElementById("stopButton")
+        .disabled = true;
+
+    });
+
+}
+
+
+/* =====================================================
+   PROCESS QR
+   ===================================================== */
+
+function processQRCode(decodedText) {
+
+  let ticketId = "";
+
+
+  /* ---------------------------------------------
+     QR contains student ticket URL
+     Example:
+     https://script.google.com/...?...ticket=SMJC260001
+     --------------------------------------------- */
+
+  try {
+
+    const url =
+      new URL(decodedText);
+
+    ticketId =
+      url.searchParams.get("ticket") || "";
+
+  }
+
+  catch (error) {
+
+    ticketId =
+      decodedText.trim();
+
+  }
+
+
+  if (!ticketId) {
+
+    processingScan = false;
+
+    showResult(
+      "❌ INVALID QR CODE",
+      "error"
+    );
+
+    return;
+
+  }
+
+
+  const day =
+    document
+      .getElementById("day")
+      .value;
+
+
+  const activity =
+    document
+      .getElementById("activity")
+      .value;
+
+
+  showResult(
+
+    "⏳ CHECKING TICKET..." +
+    "<div class='student'>" +
+    "Please wait..." +
+    "</div>",
+
+    "warning"
+
+  );
+
+
+  stopScanner();
+
+
+  sendAttendance(
+    ticketId,
+    day,
+    activity
+  );
+
+}
+
+
+/* =====================================================
+   SEND ATTENDANCE
+   USING JSONP
+   ===================================================== */
+
+function sendAttendance(
+  ticketId,
+  day,
+  activity
+) {
+
+  const callbackName =
+    "smjcScanCallback_" +
+    Date.now();
+
+
+  const script =
+    document.createElement("script");
+
+
+  let finished = false;
+
+
+  /* ---------------------------------------------
+     CALLBACK
+     --------------------------------------------- */
+
+  window[callbackName] =
+    function(data) {
+
+      if (finished) {
+        return;
+      }
+
+      finished = true;
+
+
+      try {
+
+        if (data.success) {
+
+          showResult(
+
+            "✅ ALLOWED" +
+
+            "<div class='student'>" +
+
+            "<b>Student:</b> " +
+            escapeHtml(
+              data.studentName || ""
+            ) +
+
+            "<br>" +
+
+            "<b>Reg No:</b> " +
+            escapeHtml(
+              data.regNo || ""
+            ) +
+
+            "<br>" +
+
+            "<b>Ticket:</b> " +
+            escapeHtml(
+              data.ticketId || ticketId
+            ) +
+
+            "<br>" +
+
+            "<b>Activity:</b> " +
+            escapeHtml(
+              data.activity || activity
+            ) +
+
+            "<br>" +
+
+            "<b>Time:</b> " +
+            escapeHtml(
+              data.time || ""
+            ) +
+
+            "</div>",
+
+            "success"
+
+          );
+
+        }
+
+        else {
+
+          let message =
+            data.message ||
+            "Scan failed.";
+
+
+          if (
+            message ===
+            "ALREADY COMPLETED"
+          ) {
+
+            showResult(
+
+              "⚠️ ALREADY COMPLETED" +
+
+              "<div class='student'>" +
+
+              "<b>Student:</b> " +
+              escapeHtml(
+                data.studentName || ""
+              ) +
+
+              "<br>" +
+
+              "<b>Ticket:</b> " +
+              escapeHtml(
+                data.ticketId || ticketId
+              ) +
+
+              "<br>" +
+
+              "<b>Activity:</b> " +
+              escapeHtml(
+                data.activity || activity
+              ) +
+
+              "</div>",
+
+              "warning"
+
+            );
+
+          }
+
+          else if (
+            message ===
+            "INVALID TICKET"
+          ) {
+
+            showResult(
+              "❌ INVALID TICKET",
+              "error"
+            );
+
+          }
+
+          else if (
+            message ===
+            "MAIN GATE CHECK-IN NOT FOUND"
+          ) {
+
+            showResult(
+
+              "❌ CHECK-IN NOT FOUND" +
+
+              "<div class='student'>" +
+              "Student must check in at the main gate first." +
+              "</div>",
+
+              "error"
+
+            );
+
+          }
+
+          else {
+
+            showResult(
+
+              "❌ " +
+              escapeHtml(message),
+
+              "error"
+
+            );
+
+          }
+
+        }
+
+      }
+
+      finally {
+
+        delete window[callbackName];
+
+        if (script.parentNode) {
+          script.parentNode.removeChild(script);
+        }
+
+        processingScan = false;
+
+      }
+
+    };
+
+
+  /* ---------------------------------------------
+     CREATE REQUEST URL
+     --------------------------------------------- */
+
+  const url =
+    APPS_SCRIPT_URL +
+
+    "?action=scan" +
+
+    "&ticketId=" +
+    encodeURIComponent(ticketId) +
+
+    "&day=" +
+    encodeURIComponent(day) +
+
+    "&activity=" +
+    encodeURIComponent(activity) +
+
+    "&callback=" +
+    encodeURIComponent(callbackName) +
+
+    "&_=" +
+    Date.now();
+
+
+  script.src = url;
+
+
+  script.onerror =
+    function() {
+
+      if (finished) {
+        return;
+      }
+
+      finished = true;
+
+
+      delete window[callbackName];
+
+
+      if (script.parentNode) {
+        script.parentNode.removeChild(script);
+      }
+
+
+      processingScan = false;
+
+
+      showResult(
+
+        "❌ CONNECTION ERROR" +
+
+        "<div class='student'>" +
+        "Please check your internet connection and try again." +
+        "</div>",
+
+        "error"
+
+      );
+
+    };
+
+
+  document
+    .body
+    .appendChild(script);
+
+}
+
+
+/* =====================================================
+   ESCAPE HTML
+   ===================================================== */
+
+function escapeHtml(value) {
+
+  return String(value)
+
+    .replace(/&/g, "&amp;")
+
+    .replace(/</g, "&lt;")
+
+    .replace(/>/g, "&gt;")
+
+    .replace(/"/g, "&quot;")
+
+    .replace(/'/g, "&#039;");
+
+}
+
+
+/* =====================================================
+   SHOW RESULT
+   ===================================================== */
+
+function showResult(
+  message,
+  type
+) {
+
+  const result =
+    document.getElementById("result");
+
+
+  if (!message) {
+
+    result.style.display = "none";
+
+    result.innerHTML = "";
+
+    result.className =
+      "result";
+
+    return;
+
+  }
+
+
+  result.style.display = "block";
+
+
+  result.className =
+    "result " + type;
+
+
+  result.innerHTML =
+    message;
+
+}
+
+</script>
+
+</body>
+</html>
