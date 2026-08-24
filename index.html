@@ -1,140 +1,261 @@
 <!DOCTYPE html>
 <html>
+
 <head>
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <title>SMJC Event Scanner</title>
 
   <script src="https://unpkg.com/html5-qrcode"></script>
 
+
   <style>
+
     * {
       box-sizing: border-box;
     }
 
+
     body {
+
       margin: 0;
+
       padding: 15px;
+
       background: #f2f4f7;
+
       font-family: Arial, sans-serif;
     }
 
+
     .container {
+
       max-width: 520px;
+
       margin: auto;
+
       background: white;
+
       padding: 20px;
+
       border-radius: 18px;
-      box-shadow: 0 6px 25px rgba(0,0,0,.15);
+
+      box-shadow:
+        0 6px 25px rgba(0,0,0,.15);
     }
 
+
     h1 {
+
       text-align: center;
+
       margin: 5px 0;
+
       color: #111827;
+
       font-size: 26px;
     }
 
+
     .subtitle {
+
       text-align: center;
+
       color: #6b7280;
+
       margin-bottom: 20px;
+
       font-weight: 700;
     }
 
+
     label {
+
       display: block;
+
       margin-top: 14px;
+
       margin-bottom: 6px;
+
       font-weight: 800;
+
       color: #374151;
     }
 
+
     select {
+
       width: 100%;
+
       padding: 13px;
+
       border-radius: 10px;
+
       border: 1px solid #d1d5db;
+
       font-size: 16px;
+
       background: white;
     }
 
+
     #reader {
+
       width: 100%;
+
       margin-top: 20px;
+
       border-radius: 12px;
+
       overflow: hidden;
     }
 
+
     button {
+
       width: 100%;
+
       padding: 14px;
+
       margin-top: 15px;
+
       border: none;
+
       border-radius: 10px;
+
       background: #111827;
+
       color: white;
+
       font-size: 16px;
+
       font-weight: 900;
+
       cursor: pointer;
     }
 
+
     button:disabled {
+
       background: #9ca3af;
+
+      cursor: not-allowed;
     }
+
 
     .result {
+
       margin-top: 20px;
+
       padding: 18px;
+
       border-radius: 12px;
+
       text-align: center;
+
       font-weight: 900;
+
       display: none;
+
+      line-height: 1.5;
     }
 
+
     .success {
+
       background: #dcfce7;
+
       color: #166534;
     }
 
+
     .error {
+
       background: #fee2e2;
+
       color: #991b1b;
     }
 
+
     .warning {
+
       background: #fef3c7;
+
       color: #92400e;
     }
 
+
     .student {
-      margin-top: 10px;
+
+      margin-top: 12px;
+
       font-size: 14px;
-      line-height: 1.6;
+
+      line-height: 1.8;
+
+      text-align: left;
+
+      background: rgba(255,255,255,.6);
+
+      padding: 12px;
+
+      border-radius: 10px;
     }
+
+
+    .student strong {
+
+      font-weight: 900;
+    }
+
   </style>
+
 </head>
+
 
 <body>
 
+
 <div class="container">
 
-  <h1>🎟️ SMJC EVENT SCANNER</h1>
+
+  <h1>
+    🎟️ SMJC EVENT SCANNER
+  </h1>
+
 
   <div class="subtitle">
     Attendance Scanner
   </div>
 
-  <label>Select Day</label>
+
+  <label>
+    Select Day
+  </label>
+
 
   <select id="day">
-    <option value="Day 1">Day 1 — 06 SEP</option>
-    <option value="Day 2">Day 2 — 07 SEP</option>
-    <option value="Day 3">Day 3 — 08 SEP</option>
+
+    <option value="Day 1">
+      Day 1 — 06 SEP
+    </option>
+
+    <option value="Day 2">
+      Day 2 — 07 SEP
+    </option>
+
+    <option value="Day 3">
+      Day 3 — 08 SEP
+    </option>
+
   </select>
 
 
-  <label>Select Activity</label>
+  <label>
+    Select Activity
+  </label>
+
 
   <select id="activity">
   </select>
@@ -143,80 +264,132 @@
   <div id="reader"></div>
 
 
-  <button id="startButton" onclick="startScanner()">
+  <button
+    id="startButton"
+    onclick="startScanner()"
+  >
     📷 START SCANNER
   </button>
 
 
-  <button id="stopButton" onclick="stopScanner()" disabled>
+  <button
+    id="stopButton"
+    onclick="stopScanner()"
+    disabled
+  >
     ⛔ STOP SCANNER
   </button>
 
 
-  <div id="result" class="result"></div>
+  <div
+    id="result"
+    class="result"
+  ></div>
+
 
 </div>
 
 
+
 <script>
+
+
+// ======================================================
+// APPS SCRIPT URL
+// ======================================================
 
 const APPS_SCRIPT_URL =
   "https://script.google.com/macros/s/AKfycbwztUUdFujNXHlumfDPOxmf5-yryNogtOxnIwuHEW1Lg_x1FrmWISlkBLn6ua0fUkfOog/exec";
 
 
+
+// ======================================================
+// ACTIVITIES
+// ======================================================
+
 const activities = {
 
   "Day 1": [
+
     "Main Gate Check-in",
+
     "Grand Luncheon",
+
     "Moonlight Dinner",
+
     "Main Gate Check-out"
   ],
+
 
   "Day 2": [
+
     "Main Gate Check-in",
+
     "Freshers Feast",
+
     "Starlit Dinner",
+
     "Main Gate Check-out"
   ],
 
+
   "Day 3": [
+
     "Main Gate Check-in",
+
     "Signature Lunch",
+
     "Twilight Dinner",
+
     "Main Gate Check-out"
   ]
 
 };
 
 
+
+// ======================================================
+// SCANNER VARIABLES
+// ======================================================
+
 let scanner = null;
 
 let scannerRunning = false;
 
+let scanProcessing = false;
 
-/* ==========================================
-   LOAD ACTIVITIES
-   ========================================== */
+
+
+// ======================================================
+// LOAD ACTIVITIES
+// ======================================================
 
 function loadActivities() {
 
   const day =
     document.getElementById("day").value;
 
+
   const activitySelect =
     document.getElementById("activity");
 
+
   activitySelect.innerHTML = "";
+
 
   activities[day].forEach(function(activity) {
 
     const option =
       document.createElement("option");
 
-    option.value = activity;
 
-    option.textContent = activity;
+    option.value =
+      activity;
+
+
+    option.textContent =
+      activity;
+
 
     activitySelect.appendChild(option);
 
@@ -225,9 +398,10 @@ function loadActivities() {
 }
 
 
-/* ==========================================
-   DAY CHANGE
-   ========================================== */
+
+// ======================================================
+// DAY CHANGE
+// ======================================================
 
 document
   .getElementById("day")
@@ -240,16 +414,30 @@ document
 loadActivities();
 
 
-/* ==========================================
-   START SCANNER
-   ========================================== */
+
+// ======================================================
+// START SCANNER
+// ======================================================
 
 function startScanner() {
 
-  if (scannerRunning) return;
+
+  if (scannerRunning) {
+    return;
+  }
+
+
+  scanProcessing = false;
+
+
+  document
+    .getElementById("result")
+    .style.display = "none";
+
 
   scanner =
     new Html5Qrcode("reader");
+
 
   scanner.start(
 
@@ -257,19 +445,36 @@ function startScanner() {
       facingMode: "environment"
     },
 
+
     {
+
       fps: 10,
+
       qrbox: {
+
         width: 250,
+
         height: 250
+
       }
+
     },
 
+
     function(decodedText) {
+
+      if (scanProcessing) {
+        return;
+      }
+
+
+      scanProcessing = true;
+
 
       processQRCode(decodedText);
 
     },
+
 
     function(errorMessage) {
 
@@ -278,24 +483,37 @@ function startScanner() {
     }
 
   )
+
+
   .then(function() {
 
     scannerRunning = true;
 
+
     document
       .getElementById("startButton")
       .disabled = true;
+
 
     document
       .getElementById("stopButton")
       .disabled = false;
 
   })
+
+
   .catch(function(error) {
 
+    scannerRunning = false;
+
+
     showResult(
-      "Camera could not be started. Please allow camera permission.",
+
+      "❌ CAMERA ERROR<br><br>" +
+      "Please allow camera permission.",
+
       "error"
+
     );
 
   });
@@ -303,22 +521,49 @@ function startScanner() {
 }
 
 
-/* ==========================================
-   STOP SCANNER
-   ========================================== */
+
+// ======================================================
+// STOP SCANNER
+// ======================================================
 
 function stopScanner() {
 
-  if (!scanner || !scannerRunning) return;
+
+  if (!scanner || !scannerRunning) {
+
+    return;
+
+  }
+
 
   scanner.stop()
+
     .then(function() {
 
       scannerRunning = false;
 
+
       document
         .getElementById("startButton")
         .disabled = false;
+
+
+      document
+        .getElementById("stopButton")
+        .disabled = true;
+
+    })
+
+
+    .catch(function() {
+
+      scannerRunning = false;
+
+
+      document
+        .getElementById("startButton")
+        .disabled = false;
+
 
       document
         .getElementById("stopButton")
@@ -329,23 +574,30 @@ function stopScanner() {
 }
 
 
-/* ==========================================
-   PROCESS QR
-   ========================================== */
+
+// ======================================================
+// PROCESS QR CODE
+// ======================================================
 
 function processQRCode(decodedText) {
 
+
   let ticketId = "";
+
 
   try {
 
     const url =
       new URL(decodedText);
 
+
     ticketId =
       url.searchParams.get("ticket") || "";
 
-  } catch (error) {
+  }
+
+
+  catch (error) {
 
     ticketId =
       decodedText.trim();
@@ -355,25 +607,36 @@ function processQRCode(decodedText) {
 
   if (!ticketId) {
 
+    scanProcessing = false;
+
+
     showResult(
+
       "❌ INVALID QR CODE",
+
       "error"
+
     );
 
     return;
+
   }
 
 
   const day =
     document.getElementById("day").value;
 
+
   const activity =
     document.getElementById("activity").value;
 
 
   showResult(
+
     "⏳ Checking ticket...",
+
     "warning"
+
   );
 
 
@@ -381,170 +644,470 @@ function processQRCode(decodedText) {
 
 
   sendAttendance(
+
     ticketId,
+
     day,
+
     activity
+
   );
 
 }
 
 
-/* ==========================================
-   SEND TO APPS SCRIPT
-   ========================================== */
+
+// ======================================================
+// SEND ATTENDANCE USING JSONP
+// ======================================================
 
 function sendAttendance(
+
   ticketId,
+
   day,
+
   activity
+
 ) {
 
-  fetch(APPS_SCRIPT_URL, {
 
-    method: "POST",
+  const callbackName =
+    "scanCallback_" +
+    Date.now() +
+    "_" +
+    Math.floor(
+      Math.random() * 100000
+    );
 
-    headers: {
-      "Content-Type": "text/plain;charset=utf-8"
-    },
 
-    body: JSON.stringify({
+  const script =
+    document.createElement("script");
 
-      ticketId: ticketId,
 
-      day: day,
+  const params = new URLSearchParams({
 
-      activity: activity
+    action: "scan",
 
-    })
+    ticketId: ticketId,
 
-  })
+    day: day,
 
-  .then(function(response) {
+    activity: activity,
 
-    return response.json();
+    callback: callbackName
 
-  })
+  });
 
-  .then(function(data) {
 
-    if (data.success) {
+  window[callbackName] =
+    function(data) {
 
-      showResult(
 
-        "✅ ALLOWED" +
+      // Remove script
 
-        '<div class="student">' +
+      if (script.parentNode) {
 
-        "Student: " +
-        (data.studentName || "") +
+        script.parentNode.removeChild(
+          script
+        );
 
-        "<br>" +
+      }
 
-        "Ticket: " +
-        (data.ticketId || ticketId) +
 
-        "<br>" +
+      // Remove callback
 
-        "Activity: " +
-        (data.activity || activity) +
+      try {
 
-        "<br>" +
+        delete window[callbackName];
 
-        "Time: " +
-        (data.time || "") +
+      }
 
-        "</div>",
+      catch (error) {
 
-        "success"
+        window[callbackName] =
+          undefined;
+
+      }
+
+
+      // Process response
+
+      handleScanResponse(
+
+        data,
+
+        ticketId,
+
+        day,
+
+        activity
 
       );
 
-    }
+    };
 
-    else {
 
-      let message =
-        data.message || "Scan failed.";
+  script.src =
+    APPS_SCRIPT_URL +
+    "?" +
+    params.toString();
 
-      if (
-        message ===
-        "ALREADY COMPLETED"
-      ) {
 
-        message =
-          "⚠️ ALREADY COMPLETED";
+  script.onerror =
+    function() {
 
-      }
 
-      else if (
-        message ===
-        "INVALID TICKET"
-      ) {
+      if (script.parentNode) {
 
-        message =
-          "❌ INVALID TICKET";
+        script.parentNode.removeChild(
+          script
+        );
 
       }
 
-      else if (
-        message ===
-        "MAIN GATE CHECK-IN NOT FOUND"
-      ) {
 
-        message =
-          "❌ CHECK-IN NOT FOUND";
+      try {
+
+        delete window[callbackName];
 
       }
+
+      catch (error) {
+
+        window[callbackName] =
+          undefined;
+
+      }
+
+
+      scanProcessing = false;
 
 
       showResult(
-        message,
+
+        "❌ CONNECTION ERROR<br><br>" +
+        "Please check your internet connection.",
+
         "error"
+
       );
 
-    }
+    };
 
-  })
 
-  .catch(function(error) {
+  document
+    .body
+    .appendChild(script);
+
+}
+
+
+
+// ======================================================
+// HANDLE SCAN RESPONSE
+// ======================================================
+
+function handleScanResponse(
+
+  data,
+
+  ticketId,
+
+  day,
+
+  activity
+
+) {
+
+
+  if (!data) {
+
+    scanProcessing = false;
+
 
     showResult(
 
-      "❌ CONNECTION ERROR<br>" +
-      "Please check your internet connection.",
+      "❌ NO RESPONSE FROM SERVER",
 
       "error"
 
     );
 
-  });
+    return;
+
+  }
+
+
+  // ====================================================
+  // SUCCESS
+  // ====================================================
+
+  if (data.success) {
+
+
+    showResult(
+
+      "✅ ALLOWED" +
+
+      '<div class="student">' +
+
+      "<strong>👤 Student:</strong> " +
+      escapeHTML(
+        data.studentName || ""
+      ) +
+
+      "<br>" +
+
+      "<strong>🎫 Ticket:</strong> " +
+      escapeHTML(
+        data.ticketId || ticketId
+      ) +
+
+      "<br>" +
+
+      "<strong>🪪 Reg No:</strong> " +
+      escapeHTML(
+        data.regNo || ""
+      ) +
+
+      "<br>" +
+
+      "<strong>📚 Year / Group:</strong> " +
+      escapeHTML(
+        data.yearGroup || ""
+      ) +
+
+      "<br>" +
+
+      "<strong>📅 Day:</strong> " +
+      escapeHTML(
+        data.day || day
+      ) +
+
+      "<br>" +
+
+      "<strong>🎯 Activity:</strong> " +
+      escapeHTML(
+        data.activity || activity
+      ) +
+
+      "<br>" +
+
+      "<strong>🕘 Time:</strong> " +
+      escapeHTML(
+        data.time || ""
+      ) +
+
+      "</div>",
+
+      "success"
+
+    );
+
+
+    scanProcessing = false;
+
+
+    return;
+
+  }
+
+
+
+  // ====================================================
+  // ERROR
+  // ====================================================
+
+  let message =
+    data.message ||
+    "Scan failed.";
+
+
+  if (
+    message ===
+    "ALREADY COMPLETED"
+  ) {
+
+    showResult(
+
+      "⚠️ ALREADY COMPLETED" +
+
+      '<div class="student">' +
+
+      "<strong>👤 Student:</strong> " +
+      escapeHTML(
+        data.studentName || ""
+      ) +
+
+      "<br>" +
+
+      "<strong>🎫 Ticket:</strong> " +
+      escapeHTML(
+        data.ticketId || ticketId
+      ) +
+
+      "<br>" +
+
+      "<strong>🪪 Reg No:</strong> " +
+      escapeHTML(
+        data.regNo || ""
+      ) +
+
+      "<br>" +
+
+      "<strong>📅 Day:</strong> " +
+      escapeHTML(
+        data.day || day
+      ) +
+
+      "<br>" +
+
+      "<strong>🎯 Activity:</strong> " +
+      escapeHTML(
+        data.activity || activity
+      ) +
+
+      "</div>",
+
+      "warning"
+
+    );
+
+  }
+
+
+  else if (
+    message ===
+    "INVALID TICKET"
+  ) {
+
+    showResult(
+
+      "❌ INVALID TICKET",
+
+      "error"
+
+    );
+
+  }
+
+
+  else if (
+    message ===
+    "MAIN GATE CHECK-IN NOT FOUND"
+  ) {
+
+    showResult(
+
+      "❌ CHECK-IN NOT FOUND" +
+
+      '<div class="student">' +
+
+      "Student must complete " +
+      "<strong>Main Gate Check-in</strong> " +
+      "before Check-out." +
+
+      "</div>",
+
+      "error"
+
+    );
+
+  }
+
+
+  else {
+
+    showResult(
+
+      "❌ " +
+      escapeHTML(message),
+
+      "error"
+
+    );
+
+  }
+
+
+  scanProcessing = false;
 
 }
 
 
-/* ==========================================
-   SHOW RESULT
-   ========================================== */
+
+// ======================================================
+// ESCAPE HTML
+// ======================================================
+
+function escapeHTML(value) {
+
+  return String(value)
+
+    .replace(
+      /&/g,
+      "&amp;"
+    )
+
+    .replace(
+      /</g,
+      "&lt;"
+    )
+
+    .replace(
+      />/g,
+      "&gt;"
+    )
+
+    .replace(
+      /"/g,
+      "&quot;"
+    )
+
+    .replace(
+      /'/g,
+      "&#039;"
+    );
+
+}
+
+
+
+// ======================================================
+// SHOW RESULT
+// ======================================================
 
 function showResult(
+
   message,
+
   type
+
 ) {
+
 
   const result =
     document.getElementById("result");
 
-  result.style.display = "block";
+
+  result.style.display =
+    "block";
+
 
   result.className =
     "result " + type;
+
 
   result.innerHTML =
     message;
 
 }
 
+
 </script>
 
+
 </body>
+
 </html>
