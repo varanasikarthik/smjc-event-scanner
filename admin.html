@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>SMJC Event 2026 - Admin Dashboard</title>
+
+<style>
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 20px;
+  background: #f2f4f7;
+  font-family: Arial, sans-serif;
+  color: #111827;
+}
+
+.container {
+  max-width: 1200px;
+  margin: auto;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 34px;
+}
+
+.header p {
+  color: #6b7280;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+button {
+  border: none;
+  border-radius: 10px;
+  padding: 13px 22px;
+  background: #111827;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.card {
+  background: white;
+  border-radius: 16px;
+  padding: 25px;
+  text-align: center;
+  box-shadow: 0 5px 18px rgba(0,0,0,.10);
+}
+
+.card h3 {
+  margin: 0;
+  color: #6b7280;
+  font-size: 17px;
+}
+
+.card .number {
+  margin-top: 12px;
+  font-size: 35px;
+  font-weight: 900;
+}
+
+.registered {
+  border-top: 5px solid #6366f1;
+}
+
+.checkin {
+  border-top: 5px solid #16a34a;
+}
+
+.lunch {
+  border-top: 5px solid #f59e0b;
+}
+
+.dinner {
+  border-top: 5px solid #ea580c;
+}
+
+.checkout {
+  border-top: 5px solid #2563eb;
+}
+
+.inside {
+  border-top: 5px solid #0891b2;
+}
+
+.invalid {
+  border-top: 5px solid #dc2626;
+}
+
+.section {
+  background: white;
+  border-radius: 16px;
+  padding: 25px;
+  margin-bottom: 25px;
+  box-shadow: 0 5px 18px rgba(0,0,0,.10);
+}
+
+.section h2 {
+  margin-top: 0;
+}
+
+input {
+  width: 100%;
+  padding: 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  font-size: 16px;
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+  min-width: 800px;
+}
+
+th {
+  background: #111827;
+  color: white;
+  padding: 13px;
+  text-align: left;
+}
+
+td {
+  padding: 13px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.allowed {
+  color: #15803d;
+  font-weight: bold;
+}
+
+.not-entered {
+  color: #6b7280;
+}
+
+.loading {
+  text-align: center;
+  padding: 25px;
+  color: #6b7280;
+}
+
+@media (max-width: 800px) {
+
+  .stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+}
+
+@media (max-width: 500px) {
+
+  body {
+    padding: 10px;
+  }
+
+  .stats {
+    grid-template-columns: 1fr;
+  }
+
+  .header h1 {
+    font-size: 27px;
+  }
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+  <div class="header">
+
+    <h1>🎟️ EVENT 2026</h1>
+
+    <p>ADMIN DASHBOARD</p>
+
+    <button onclick="loadDashboard()">
+      🔄 REFRESH DATA
+    </button>
+
+  </div>
+
+
+  <!-- STATISTICS -->
+
+  <div class="stats">
+
+    <div class="card registered">
+      <h3>🎟️ REGISTERED</h3>
+      <div class="number" id="registered">0</div>
+    </div>
+
+    <div class="card checkin">
+      <h3>🚪 CHECK-IN</h3>
+      <div class="number" id="checkin">0</div>
+    </div>
+
+    <div class="card lunch">
+      <h3>🍽️ LUNCH</h3>
+      <div class="number" id="lunch">0</div>
+    </div>
+
+    <div class="card dinner">
+      <h3>🌙 DINNER</h3>
+      <div class="number" id="dinner">0</div>
+    </div>
+
+    <div class="card checkout">
+      <h3>🚪 CHECKOUT</h3>
+      <div class="number" id="checkout">0</div>
+    </div>
+
+    <div class="card inside">
+      <h3>🟢 CURRENTLY INSIDE</h3>
+      <div class="number" id="inside">0</div>
+    </div>
+
+    <div class="card invalid">
+      <h3>❌ INVALID SCANS</h3>
+      <div class="number" id="invalid">0</div>
+    </div>
+
+  </div>
+
+
+  <!-- SEARCH -->
+
+  <div class="section">
+
+    <h2>🔎 Search Student</h2>
+
+    <input
+      id="search"
+      type="text"
+      placeholder="Enter Ticket ID or Register Number"
+      oninput="searchStudent()"
+    >
+
+  </div>
+
+
+  <!-- STUDENT STATUS -->
+
+  <div class="section">
+
+    <h2>👨‍🎓 Student Status</h2>
+
+    <div class="table-wrap">
+
+      <table>
+
+        <thead>
+
+          <tr>
+            <th>Ticket ID</th>
+            <th>Reg No</th>
+            <th>Name</th>
+            <th>Entry</th>
+            <th>Lunch</th>
+            <th>Dinner</th>
+            <th>Checkout</th>
+            <th>Status</th>
+          </tr>
+
+        </thead>
+
+        <tbody id="studentTable">
+
+          <tr>
+            <td colspan="8" class="loading">
+              Loading data...
+            </td>
+          </tr>
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
+
+  <!-- LATEST SCANS -->
+
+  <div class="section">
+
+    <h2>📋 Latest Scans</h2>
+
+    <div class="table-wrap">
+
+      <table>
+
+        <thead>
+
+          <tr>
+            <th>Time</th>
+            <th>Ticket ID</th>
+            <th>Reg No</th>
+            <th>Name</th>
+            <th>Day</th>
+            <th>Action</th>
+            <th>Result</th>
+          </tr>
+
+        </thead>
+
+        <tbody id="scanTable">
+
+          <tr>
+            <td colspan="7" class="loading">
+              Loading data...
+            </td>
+          </tr>
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<script>
+
+const APPS_SCRIPT_URL =
+"https://script.google.com/macros/s/AKfycbwztUUdFujNXHlumfDPOxmf5-yryNogtOxnIwuHEW1Lg_x1FrmWISlkBLn6ua0fUkfOog/exec";
+
+
+let dashboardData = {
+  students: [],
+  attendance: []
+};
+
+
+// ==========================================
+// LOAD DASHBOARD
+// ==========================================
+
+function loadDashboard() {
+
+  document.getElementById("studentTable").innerHTML =
+    '<tr><td colspan="8" class="loading">Loading data...</td></tr>';
+
+  document.getElementById("scanTable").innerHTML =
+    '<tr><td colspan="7" class="loading">Loading data...</td></tr>';
+
+
+  fetch(
+    APPS_SCRIPT_URL +
+    "?action=admin"
+  )
+
+  .then(function(response) {
+    return response.json();
+  })
+
+  .then(function(data) {
+
+    if (!data.success) {
+
+      alert(
+        data.message ||
+        "Unable to load dashboard."
+      );
+
+      return;
+    }
+
+
+    dashboardData.students =
+      data.students || [];
+
+    dashboardData.attendance =
+      data.attendance || [];
+
+
+    updateStatistics();
+
+    displayStudents(
+      dashboardData.students
+    );
+
+    displayLatestScans(
+      dashboardData.attendance
+    );
+
+  })
+
+  .catch(function(error) {
+
+    console.error(error);
+
+    alert(
+      "Dashboard connection error."
+    );
+
+  });
+
+}
+
+
+// ==========================================
+// UPDATE STATISTICS
+// ==========================================
+
+function updateStatistics() {
+
+  const students =
+    dashboardData.students;
+
+  const attendance =
+    dashboardData.attendance;
+
+
+  document.getElementById("registered")
+    .textContent =
+    students.length;
+
+
+  const checkins =
+    attendance.filter(function(row) {
+
+      return row.activity ===
+        "Main Gate Check-in";
+
+    });
+
+
+  const lunches =
+    attendance.filter(function(row) {
+
+      return (
+        row.activity === "Grand Luncheon" ||
+        row.activity === "Freshers Feast" ||
+        row.activity === "Signature Lunch"
+      );
+
+    });
+
+
+  const dinners =
+    attendance.filter(function(row) {
+
+      return (
+        row.activity === "Moonlight Dinner" ||
+        row.activity === "Starlit Dinner" ||
+        row.activity === "Twilight Dinner"
+      );
+
+    });
+
+
+  const checkouts =
+    attendance.filter(function(row) {
+
+      return row.activity ===
+        "Main Gate Check-out";
+
+    });
+
+
+  document.getElementById("checkin")
+    .textContent =
+    checkins.length;
+
+
+  document.getElementById("lunch")
+    .textContent =
+    lunches.length;
+
+
+  document.getElementById("dinner")
+    .textContent =
+    dinners.length;
+
+
+  document.getElementById("checkout")
+    .textContent =
+    checkouts.length;
+
+
+  /*
+   * Currently inside
+   * = check-ins minus check-outs
+   */
+
+  document.getElementById("inside")
+    .textContent =
+    Math.max(
+      checkins.length -
+      checkouts.length,
+      0
+    );
+
+
+  document.getElementById("invalid")
+    .textContent =
+    0;
+
+}
+
+
+// ==========================================
+// DISPLAY STUDENTS
+// ==========================================
+
+function displayStudents(students) {
+
+  const table =
+    document.getElementById(
+      "studentTable"
+    );
+
+
+  if (!students.length) {
+
+    table.innerHTML =
+      '<tr><td colspan="8">No students found.</td></tr>';
+
+    return;
+  }
+
+
+  let html = "";
+
+
+  students.forEach(function(student) {
+
+    html += `
+      <tr>
+
+        <td>${student.ticketId}</td>
+
+        <td>${student.regNo}</td>
+
+        <td>${student.studentName}</td>
+
+        <td>${student.entry || "—"}</td>
+
+        <td>${student.lunch || "—"}</td>
+
+        <td>${student.dinner || "—"}</td>
+
+        <td>${student.checkout || "—"}</td>
+
+        <td class="not-entered">
+          ${student.status || "NOT ENTERED"}
+        </td>
+
+      </tr>
+    `;
+
+  });
+
+
+  table.innerHTML =
+    html;
+
+}
+
+
+// ==========================================
+// LATEST SCANS
+// ==========================================
+
+function displayLatestScans(attendance) {
+
+  const table =
+    document.getElementById(
+      "scanTable"
+    );
+
+
+  if (!attendance.length) {
+
+    table.innerHTML =
+      '<tr><td colspan="7">No scans yet.</td></tr>';
+
+    return;
+  }
+
+
+  const latest =
+    attendance
+      .slice()
+      .reverse()
+      .slice(0, 20);
+
+
+  let html = "";
+
+
+  latest.forEach(function(row) {
+
+    html += `
+      <tr>
+
+        <td>${row.time || ""}</td>
+
+        <td>${row.ticketId || ""}</td>
+
+        <td>${row.regNo || ""}</td>
+
+        <td>${row.studentName || ""}</td>
+
+        <td>${row.day || ""}</td>
+
+        <td>${row.activity || ""}</td>
+
+        <td class="allowed">
+          ALLOWED
+        </td>
+
+      </tr>
+    `;
+
+  });
+
+
+  table.innerHTML =
+    html;
+
+}
+
+
+// ==========================================
+// SEARCH STUDENT
+// ==========================================
+
+function searchStudent() {
+
+  const query =
+    document
+      .getElementById("search")
+      .value
+      .trim()
+      .toLowerCase();
+
+
+  if (!query) {
+
+    displayStudents(
+      dashboardData.students
+    );
+
+    return;
+  }
+
+
+  const filtered =
+    dashboardData.students.filter(
+      function(student) {
+
+        return (
+
+          String(
+            student.ticketId
+          )
+          .toLowerCase()
+          .includes(query)
+
+          ||
+
+          String(
+            student.regNo
+          )
+          .toLowerCase()
+          .includes(query)
+
+          ||
+
+          String(
+            student.studentName
+          )
+          .toLowerCase()
+          .includes(query)
+
+        );
+
+      }
+    );
+
+
+  displayStudents(
+    filtered
+  );
+
+}
+
+
+// ==========================================
+// INITIAL LOAD
+// ==========================================
+
+loadDashboard();
+
+</script>
+
+</body>
+</html>
