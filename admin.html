@@ -4,7 +4,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>SMJC Event 2026 - Admin Dashboard</title>
+<title>SMJC Freshers Day - Admin Dashboard</title>
 
 <style>
 
@@ -21,36 +21,119 @@ body {
 }
 
 .container {
-  max-width: 1200px;
+  max-width: 1300px;
   margin: auto;
 }
+
+/* ==========================================
+   HEADER
+========================================== */
 
 .header {
   text-align: center;
   margin-bottom: 25px;
 }
 
-.header h1 {
-  margin: 0;
-  font-size: 34px;
+.college-name {
+  font-size: 30px;
+  font-weight: 900;
+  color: #111827;
+  margin: 5px 0;
+  line-height: 1.25;
 }
 
-.header p {
+.event-name {
+  font-size: 25px;
+  font-weight: 900;
+  color: #db2777;
+  margin: 8px 0;
+}
+
+.dashboard-title {
+  font-size: 21px;
+  font-weight: 800;
   color: #6b7280;
-  font-size: 18px;
-  font-weight: bold;
+  margin: 8px 0 18px;
 }
 
-button {
+.refresh-btn {
   border: none;
   border-radius: 10px;
-  padding: 13px 22px;
+  padding: 13px 25px;
   background: #111827;
   color: white;
   font-size: 16px;
-  font-weight: bold;
+  font-weight: 900;
   cursor: pointer;
 }
+
+/* ==========================================
+   DAY SELECTOR
+========================================== */
+
+.day-section {
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 25px;
+  box-shadow: 0 5px 18px rgba(0,0,0,.10);
+  text-align: center;
+}
+
+.day-title {
+  font-size: 18px;
+  font-weight: 900;
+  margin-bottom: 15px;
+  color: #374151;
+}
+
+.day-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.day-btn {
+  min-width: 180px;
+  padding: 15px 25px;
+  border-radius: 12px;
+  border: 2px solid #d1d5db;
+  background: white;
+  color: #111827;
+  font-size: 16px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.day-btn:hover {
+  transform: translateY(-2px);
+}
+
+.day-btn.active {
+  background: #111827;
+  color: white;
+  border-color: #111827;
+}
+
+.day-btn.day1.active {
+  background: #4f46e5;
+  border-color: #4f46e5;
+}
+
+.day-btn.day2.active {
+  background: #16a34a;
+  border-color: #16a34a;
+}
+
+.day-btn.day3.active {
+  background: #ea580c;
+  border-color: #ea580c;
+}
+
+/* ==========================================
+   STATS
+========================================== */
 
 .stats {
   display: grid;
@@ -80,7 +163,7 @@ button {
 }
 
 .registered {
-  border-top: 5px solid #6366f1;
+  border-top: 5px solid #db2777;
 }
 
 .checkin {
@@ -88,7 +171,7 @@ button {
 }
 
 .lunch {
-  border-top: 5px solid #f59e0b;
+  border-top: 5px solid #7c3aed;
 }
 
 .dinner {
@@ -107,6 +190,10 @@ button {
   border-top: 5px solid #dc2626;
 }
 
+/* ==========================================
+   SECTIONS
+========================================== */
+
 .section {
   background: white;
   border-radius: 16px;
@@ -117,6 +204,7 @@ button {
 
 .section h2 {
   margin-top: 0;
+  font-size: 22px;
 }
 
 input {
@@ -127,6 +215,10 @@ input {
   font-size: 16px;
 }
 
+/* ==========================================
+   TABLES
+========================================== */
+
 .table-wrap {
   overflow-x: auto;
 }
@@ -135,7 +227,7 @@ table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 15px;
-  min-width: 800px;
+  min-width: 900px;
 }
 
 th {
@@ -159,21 +251,38 @@ td {
   color: #6b7280;
 }
 
-.loading {
-  text-align: center;
-  padding: 25px;
-  color: #6b7280;
+.completed {
+  color: #15803d;
+  font-weight: bold;
 }
 
-@media (max-width: 800px) {
+.footer {
+  text-align: center;
+  color: #6b7280;
+  font-size: 14px;
+  padding: 15px;
+}
+
+/* ==========================================
+   MOBILE
+========================================== */
+
+@media (max-width: 900px) {
 
   .stats {
     grid-template-columns: repeat(2, 1fr);
   }
 
+  .college-name {
+    font-size: 24px;
+  }
+
+  .event-name {
+    font-size: 21px;
+  }
 }
 
-@media (max-width: 500px) {
+@media (max-width: 550px) {
 
   body {
     padding: 10px;
@@ -183,10 +292,21 @@ td {
     grid-template-columns: 1fr;
   }
 
-  .header h1 {
-    font-size: 27px;
+  .college-name {
+    font-size: 20px;
   }
 
+  .event-name {
+    font-size: 19px;
+  }
+
+  .dashboard-title {
+    font-size: 18px;
+  }
+
+  .day-btn {
+    width: 100%;
+  }
 }
 
 </style>
@@ -197,182 +317,308 @@ td {
 
 <div class="container">
 
-  <div class="header">
+<!-- ==========================================
+     HEADER
+========================================== -->
 
-    <h1>🎟️ EVENT 2026</h1>
+<div class="header">
 
-    <p>ADMIN DASHBOARD</p>
+  <div class="college-name">
+    SRI MUNINARAYANA JUNIOR & DEGREE COLLEGE, BAIREDDIPALLI
+  </div>
 
-    <button onclick="loadDashboard()">
-      🔄 REFRESH DATA
+  <div class="event-name">
+    FRESHERS DAY CELEBRATIONS
+  </div>
+
+  <div class="dashboard-title">
+    ADMIN DASHBOARD
+  </div>
+
+  <button class="refresh-btn" onclick="loadDashboard()">
+    🔄 REFRESH DATA
+  </button>
+
+</div>
+
+
+<!-- ==========================================
+     DAY SELECTOR
+========================================== -->
+
+<div class="day-section">
+
+  <div class="day-title">
+    📅 SELECT DAY
+  </div>
+
+  <div class="day-buttons">
+
+    <button
+      class="day-btn day1 active"
+      onclick="selectDay('Day 1', this)"
+    >
+      📅 DAY 1
+      <br>
+      <small>06 SEP 2026</small>
     </button>
 
-  </div>
-
-
-  <!-- STATISTICS -->
-
-  <div class="stats">
-
-    <div class="card registered">
-      <h3>🎟️ REGISTERED</h3>
-      <div class="number" id="registered">0</div>
-    </div>
-
-    <div class="card checkin">
-      <h3>🚪 CHECK-IN</h3>
-      <div class="number" id="checkin">0</div>
-    </div>
-
-    <div class="card lunch">
-      <h3>🍽️ LUNCH</h3>
-      <div class="number" id="lunch">0</div>
-    </div>
-
-    <div class="card dinner">
-      <h3>🌙 DINNER</h3>
-      <div class="number" id="dinner">0</div>
-    </div>
-
-    <div class="card checkout">
-      <h3>🚪 CHECKOUT</h3>
-      <div class="number" id="checkout">0</div>
-    </div>
-
-    <div class="card inside">
-      <h3>🟢 CURRENTLY INSIDE</h3>
-      <div class="number" id="inside">0</div>
-    </div>
-
-    <div class="card invalid">
-      <h3>❌ INVALID SCANS</h3>
-      <div class="number" id="invalid">0</div>
-    </div>
-
-  </div>
-
-
-  <!-- SEARCH -->
-
-  <div class="section">
-
-    <h2>🔎 Search Student</h2>
-
-    <input
-      id="search"
-      type="text"
-      placeholder="Enter Ticket ID or Register Number"
-      oninput="searchStudent()"
+    <button
+      class="day-btn day2"
+      onclick="selectDay('Day 2', this)"
     >
+      📅 DAY 2
+      <br>
+      <small>07 SEP 2026</small>
+    </button>
 
-  </div>
-
-
-  <!-- STUDENT STATUS -->
-
-  <div class="section">
-
-    <h2>👨‍🎓 Student Status</h2>
-
-    <div class="table-wrap">
-
-      <table>
-
-        <thead>
-
-          <tr>
-            <th>Ticket ID</th>
-            <th>Reg No</th>
-            <th>Name</th>
-            <th>Entry</th>
-            <th>Lunch</th>
-            <th>Dinner</th>
-            <th>Checkout</th>
-            <th>Status</th>
-          </tr>
-
-        </thead>
-
-        <tbody id="studentTable">
-
-          <tr>
-            <td colspan="8" class="loading">
-              Loading data...
-            </td>
-          </tr>
-
-        </tbody>
-
-      </table>
-
-    </div>
-
-  </div>
-
-
-  <!-- LATEST SCANS -->
-
-  <div class="section">
-
-    <h2>📋 Latest Scans</h2>
-
-    <div class="table-wrap">
-
-      <table>
-
-        <thead>
-
-          <tr>
-            <th>Time</th>
-            <th>Ticket ID</th>
-            <th>Reg No</th>
-            <th>Name</th>
-            <th>Day</th>
-            <th>Action</th>
-            <th>Result</th>
-          </tr>
-
-        </thead>
-
-        <tbody id="scanTable">
-
-          <tr>
-            <td colspan="7" class="loading">
-              Loading data...
-            </td>
-          </tr>
-
-        </tbody>
-
-      </table>
-
-    </div>
+    <button
+      class="day-btn day3"
+      onclick="selectDay('Day 3', this)"
+    >
+      📅 DAY 3
+      <br>
+      <small>08 SEP 2026</small>
+    </button>
 
   </div>
 
 </div>
 
 
+<!-- ==========================================
+     STATISTICS
+========================================== -->
+
+<div class="stats">
+
+  <div class="card registered">
+    <h3>🎟️ REGISTERED</h3>
+    <div class="number" id="registered">0</div>
+  </div>
+
+  <div class="card checkin">
+    <h3>🚪 CHECK-IN</h3>
+    <div class="number" id="checkin">0</div>
+  </div>
+
+  <div class="card lunch">
+    <h3>🍽️ LUNCH</h3>
+    <div class="number" id="lunch">0</div>
+  </div>
+
+  <div class="card dinner">
+    <h3>🌙 DINNER</h3>
+    <div class="number" id="dinner">0</div>
+  </div>
+
+  <div class="card checkout">
+    <h3>🚪 CHECKOUT</h3>
+    <div class="number" id="checkout">0</div>
+  </div>
+
+  <div class="card inside">
+    <h3>🟢 CURRENTLY INSIDE</h3>
+    <div class="number" id="inside">0</div>
+  </div>
+
+  <div class="card invalid">
+    <h3>❌ INVALID SCANS</h3>
+    <div class="number" id="invalid">0</div>
+  </div>
+
+</div>
+
+
+<!-- ==========================================
+     SEARCH
+========================================== -->
+
+<div class="section">
+
+  <h2>🔎 Search Student</h2>
+
+  <input
+    id="search"
+    type="text"
+    placeholder="Enter Ticket ID or Register Number"
+    oninput="searchStudent()"
+  >
+
+</div>
+
+
+<!-- ==========================================
+     STUDENT STATUS
+========================================== -->
+
+<div class="section">
+
+  <h2>
+    👨‍🎓 Student Status —
+    <span id="selectedDay">Day 1</span>
+  </h2>
+
+  <div class="table-wrap">
+
+    <table>
+
+      <thead>
+
+        <tr>
+          <th>Ticket ID</th>
+          <th>Reg No</th>
+          <th>Name</th>
+          <th>Entry</th>
+          <th>Lunch</th>
+          <th>Dinner</th>
+          <th>Checkout</th>
+          <th>Status</th>
+        </tr>
+
+      </thead>
+
+      <tbody id="studentTable">
+
+        <tr>
+          <td colspan="8" class="loading">
+            Loading data...
+          </td>
+        </tr>
+
+      </tbody>
+
+    </table>
+
+  </div>
+
+</div>
+
+
+<!-- ==========================================
+     LATEST SCANS
+========================================== -->
+
+<div class="section">
+
+  <h2>
+    📋 Latest Scans —
+    <span id="scanDay">Day 1</span>
+  </h2>
+
+  <div class="table-wrap">
+
+    <table>
+
+      <thead>
+
+        <tr>
+          <th>Time</th>
+          <th>Ticket ID</th>
+          <th>Reg No</th>
+          <th>Name</th>
+          <th>Day</th>
+          <th>Action</th>
+          <th>Result</th>
+        </tr>
+
+      </thead>
+
+      <tbody id="scanTable">
+
+        <tr>
+          <td colspan="7" class="loading">
+            Loading data...
+          </td>
+        </tr>
+
+      </tbody>
+
+    </table>
+
+  </div>
+
+</div>
+
+
+<div class="footer">
+  SMJC EVENT 2026 — FRESHERS DAY CELEBRATIONS ❤️
+</div>
+
+</div>
+
+
 <script>
+
+/* ==========================================
+   APPS SCRIPT URL
+========================================== */
 
 const APPS_SCRIPT_URL =
 "https://script.google.com/macros/s/AKfycbwztUUdFujNXHlumfDPOxmf5-yryNogtOxnIwuHEW1Lg_x1FrmWISlkBLn6ua0fUkfOog/exec";
 
 
+/* ==========================================
+   DASHBOARD DATA
+========================================== */
+
 let dashboardData = {
+
   students: [],
+
   attendance: []
+
 };
 
 
-// ==========================================
-// LOAD DASHBOARD
-// ==========================================
+/* CURRENT SELECTED DAY */
+
+let selectedDay = "Day 1";
+
+
+/* ==========================================
+   SELECT DAY
+========================================== */
+
+function selectDay(day, button) {
+
+  selectedDay = day;
+
+
+  document
+    .querySelectorAll(".day-btn")
+    .forEach(function(btn) {
+
+      btn.classList.remove("active");
+
+    });
+
+
+  button.classList.add("active");
+
+
+  document.getElementById("selectedDay")
+    .textContent = day;
+
+
+  document.getElementById("scanDay")
+    .textContent = day;
+
+
+  updateDashboard();
+
+}
+
+
+/* ==========================================
+   LOAD DASHBOARD
+========================================== */
 
 function loadDashboard() {
 
   document.getElementById("studentTable").innerHTML =
     '<tr><td colspan="8" class="loading">Loading data...</td></tr>';
+
 
   document.getElementById("scanTable").innerHTML =
     '<tr><td colspan="7" class="loading">Loading data...</td></tr>';
@@ -384,7 +630,9 @@ function loadDashboard() {
   )
 
   .then(function(response) {
+
     return response.json();
+
   })
 
   .then(function(data) {
@@ -403,19 +651,12 @@ function loadDashboard() {
     dashboardData.students =
       data.students || [];
 
+
     dashboardData.attendance =
       data.attendance || [];
 
 
-    updateStatistics();
-
-    displayStudents(
-      dashboardData.students
-    );
-
-    displayLatestScans(
-      dashboardData.attendance
-    );
+    updateDashboard();
 
   })
 
@@ -432,23 +673,62 @@ function loadDashboard() {
 }
 
 
-// ==========================================
-// UPDATE STATISTICS
-// ==========================================
+/* ==========================================
+   UPDATE EVERYTHING
+========================================== */
+
+function updateDashboard() {
+
+  updateStatistics();
+
+
+  displayStudents(
+    dashboardData.students
+  );
+
+
+  displayLatestScans(
+    dashboardData.attendance
+  );
+
+}
+
+
+/* ==========================================
+   GET DAY ATTENDANCE
+========================================== */
+
+function getSelectedDayAttendance() {
+
+  return dashboardData.attendance.filter(
+    function(row) {
+
+      return String(row.day).trim() === selectedDay;
+
+    }
+  );
+
+}
+
+
+/* ==========================================
+   UPDATE STATISTICS
+========================================== */
 
 function updateStatistics() {
 
-  const students =
-    dashboardData.students;
-
   const attendance =
-    dashboardData.attendance;
+    getSelectedDayAttendance();
 
+
+  /* REGISTERED ALWAYS TOTAL */
 
   document.getElementById("registered")
     .textContent =
-    students.length;
+    dashboardData.students.length;
 
+
+  /* CHECK-IN */
 
   const checkins =
     attendance.filter(function(row) {
@@ -458,6 +738,8 @@ function updateStatistics() {
 
     });
 
+
+  /* LUNCH */
 
   const lunches =
     attendance.filter(function(row) {
@@ -471,6 +753,8 @@ function updateStatistics() {
     });
 
 
+  /* DINNER */
+
   const dinners =
     attendance.filter(function(row) {
 
@@ -482,6 +766,8 @@ function updateStatistics() {
 
     });
 
+
+  /* CHECKOUT */
 
   const checkouts =
     attendance.filter(function(row) {
@@ -512,10 +798,7 @@ function updateStatistics() {
     checkouts.length;
 
 
-  /*
-   * Currently inside
-   * = check-ins minus check-outs
-   */
+  /* CURRENTLY INSIDE */
 
   document.getElementById("inside")
     .textContent =
@@ -526,6 +809,8 @@ function updateStatistics() {
     );
 
 
+  /* INVALID */
+
   document.getElementById("invalid")
     .textContent =
     0;
@@ -533,9 +818,42 @@ function updateStatistics() {
 }
 
 
-// ==========================================
-// DISPLAY STUDENTS
-// ==========================================
+/* ==========================================
+   FIND ACTIVITY TIME
+========================================== */
+
+function getActivityTime(
+  ticketId,
+  activity
+) {
+
+  const attendance =
+    getSelectedDayAttendance();
+
+
+  const found =
+    attendance.find(function(row) {
+
+      return (
+        String(row.ticketId).trim() ===
+        String(ticketId).trim() &&
+
+        row.activity === activity
+      );
+
+    });
+
+
+  return found
+    ? found.time || "✓ COMPLETED"
+    : "—";
+
+}
+
+
+/* ==========================================
+   DISPLAY STUDENTS
+========================================== */
 
 function displayStudents(students) {
 
@@ -551,36 +869,183 @@ function displayStudents(students) {
       '<tr><td colspan="8">No students found.</td></tr>';
 
     return;
+
+  }
+
+
+  const query =
+    document
+      .getElementById("search")
+      .value
+      .trim()
+      .toLowerCase();
+
+
+  const filtered =
+    students.filter(function(student) {
+
+      if (!query) return true;
+
+
+      return (
+
+        String(student.ticketId)
+          .toLowerCase()
+          .includes(query)
+
+        ||
+
+        String(student.regNo)
+          .toLowerCase()
+          .includes(query)
+
+        ||
+
+        String(student.studentName)
+          .toLowerCase()
+          .includes(query)
+
+      );
+
+    });
+
+
+  if (!filtered.length) {
+
+    table.innerHTML =
+      '<tr><td colspan="8">No matching student found.</td></tr>';
+
+    return;
+
   }
 
 
   let html = "";
 
 
-  students.forEach(function(student) {
+  filtered.forEach(function(student) {
+
+    const entry =
+      getActivityTime(
+        student.ticketId,
+        "Main Gate Check-in"
+      );
+
+
+    let lunchActivity = "";
+
+
+    if (selectedDay === "Day 1") {
+
+      lunchActivity =
+        "Grand Luncheon";
+
+    }
+
+    else if (selectedDay === "Day 2") {
+
+      lunchActivity =
+        "Freshers Feast";
+
+    }
+
+    else {
+
+      lunchActivity =
+        "Signature Lunch";
+
+    }
+
+
+    const lunch =
+      getActivityTime(
+        student.ticketId,
+        lunchActivity
+      );
+
+
+    let dinnerActivity = "";
+
+
+    if (selectedDay === "Day 1") {
+
+      dinnerActivity =
+        "Moonlight Dinner";
+
+    }
+
+    else if (selectedDay === "Day 2") {
+
+      dinnerActivity =
+        "Starlit Dinner";
+
+    }
+
+    else {
+
+      dinnerActivity =
+        "Twilight Dinner";
+
+    }
+
+
+    const dinner =
+      getActivityTime(
+        student.ticketId,
+        dinnerActivity
+      );
+
+
+    const checkout =
+      getActivityTime(
+        student.ticketId,
+        "Main Gate Check-out"
+      );
+
+
+    const entered =
+      entry !== "—";
+
+
+    let status =
+      entered
+        ? "ENTERED"
+        : "NOT ENTERED";
+
 
     html += `
+
       <tr>
 
-        <td>${student.ticketId}</td>
+        <td>${student.ticketId || ""}</td>
 
-        <td>${student.regNo}</td>
+        <td>${student.regNo || ""}</td>
 
-        <td>${student.studentName}</td>
+        <td>${student.studentName || ""}</td>
 
-        <td>${student.entry || "—"}</td>
+        <td class="${entered ? "completed" : "not-entered"}">
+          ${entry}
+        </td>
 
-        <td>${student.lunch || "—"}</td>
+        <td class="${lunch !== "—" ? "completed" : "not-entered"}">
+          ${lunch}
+        </td>
 
-        <td>${student.dinner || "—"}</td>
+        <td class="${dinner !== "—" ? "completed" : "not-entered"}">
+          ${dinner}
+        </td>
 
-        <td>${student.checkout || "—"}</td>
+        <td class="${checkout !== "—" ? "completed" : "not-entered"}">
+          ${checkout}
+        </td>
 
-        <td class="not-entered">
-          ${student.status || "NOT ENTERED"}
+        <td class="${entered ? "completed" : "not-entered"}">
+          ${entered ? "🟢 " : "⚪ "}
+          ${status}
         </td>
 
       </tr>
+
     `;
 
   });
@@ -592,9 +1057,9 @@ function displayStudents(students) {
 }
 
 
-// ==========================================
-// LATEST SCANS
-// ==========================================
+/* ==========================================
+   LATEST SCANS
+========================================== */
 
 function displayLatestScans(attendance) {
 
@@ -604,17 +1069,27 @@ function displayLatestScans(attendance) {
     );
 
 
-  if (!attendance.length) {
+  const dayAttendance =
+    attendance.filter(function(row) {
+
+      return String(row.day).trim() ===
+        selectedDay;
+
+    });
+
+
+  if (!dayAttendance.length) {
 
     table.innerHTML =
-      '<tr><td colspan="7">No scans yet.</td></tr>';
+      '<tr><td colspan="7">No scans for this day yet.</td></tr>';
 
     return;
+
   }
 
 
   const latest =
-    attendance
+    dayAttendance
       .slice()
       .reverse()
       .slice(0, 20);
@@ -626,6 +1101,7 @@ function displayLatestScans(attendance) {
   latest.forEach(function(row) {
 
     html += `
+
       <tr>
 
         <td>${row.time || ""}</td>
@@ -645,6 +1121,7 @@ function displayLatestScans(attendance) {
         </td>
 
       </tr>
+
     `;
 
   });
@@ -656,74 +1133,22 @@ function displayLatestScans(attendance) {
 }
 
 
-// ==========================================
-// SEARCH STUDENT
-// ==========================================
+/* ==========================================
+   SEARCH
+========================================== */
 
 function searchStudent() {
 
-  const query =
-    document
-      .getElementById("search")
-      .value
-      .trim()
-      .toLowerCase();
-
-
-  if (!query) {
-
-    displayStudents(
-      dashboardData.students
-    );
-
-    return;
-  }
-
-
-  const filtered =
-    dashboardData.students.filter(
-      function(student) {
-
-        return (
-
-          String(
-            student.ticketId
-          )
-          .toLowerCase()
-          .includes(query)
-
-          ||
-
-          String(
-            student.regNo
-          )
-          .toLowerCase()
-          .includes(query)
-
-          ||
-
-          String(
-            student.studentName
-          )
-          .toLowerCase()
-          .includes(query)
-
-        );
-
-      }
-    );
-
-
   displayStudents(
-    filtered
+    dashboardData.students
   );
 
 }
 
 
-// ==========================================
-// INITIAL LOAD
-// ==========================================
+/* ==========================================
+   INITIAL LOAD
+========================================== */
 
 loadDashboard();
 
